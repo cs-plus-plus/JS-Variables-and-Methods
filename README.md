@@ -1,16 +1,16 @@
-# Unit 8 – Temperature and Circle Area Conversion   
+# Unit 8 – Temperature and Circle Area Conversion Project  
 ### Topics: 8.1 – Variables | 8.2 – Methods
 
 ---
 
 ## 🧠 Overview
 
-In this project, you will apply your understanding of **variables** and **methods (functions)** in JavaScript to create a small program that performs two tasks:
+In this project, you will apply your understanding of **variables** and **methods (functions)** in JavaScript to create a small web program that performs two tasks:
 
 1. Ask the user for a **temperature in Fahrenheit** and convert it to **Celsius**.  
-2. Ask the user for the **radius of a circle** and display its **area**.
+2. Ask the user for the **radius of a circle** and display its **area**.  
 
-You will use **text input fields** in an HTML page to collect values and use `console.log()` to display your results.
+You will use **text input fields** in an HTML page to collect values and use the DOM (`document.getElementById`) to display results **on the screen**.
 
 ---
 
@@ -18,10 +18,10 @@ You will use **text input fields** in an HTML page to collect values and use `co
 
 By the end of this assignment, you should be able to:
 - Declare and initialize **variables** to store user input.
-- Use **document.getElementById()** to access text fields in the DOM.
+- Use **document.getElementById()** to access and update elements in the DOM.
 - Apply **arithmetic operators** to perform calculations.
 - Define and call **functions (methods)** to organize and reuse code.
-- Output results to the console using `console.log()`.
+- Display results on a webpage using `.textContent`.
 
 ---
 
@@ -53,23 +53,42 @@ function toCelsius(fahrenheit) {
 
 ## 🧱 Project Requirements
 
-1. Create an `index.html` file with **two text fields**:
-   - `<input id="temp">` for the Fahrenheit temperature  
-   - `<input id="radius">` for the circle radius  
+### HTML Requirements
+Your HTML page must contain:
 
-2. Create a `script.js` file that:
-   - Retrieves both values using `document.getElementById()`.
-   - Converts Fahrenheit to Celsius.
-   - Calculates the area of a circle using `Math.PI * Math.pow(radius, 2)`.
-   - Logs both results using `console.log()`.
+```html
+<input id="temp" type="text">        <!-- Fahrenheit input -->
+<input id="radius" type="text">      <!-- Circle radius input -->
+<div id="tempC"></div>               <!-- Celsius output -->
+<div id="area"></div>                <!-- Area output -->
+<button onclick="calculate()">Calculate</button>
+```
+
+### JavaScript Requirements
+Your JavaScript file (`script.js`) must:
+1. Retrieve both input values using `document.getElementById()`.
+2. Convert Fahrenheit to Celsius and calculate the area of a circle.
+3. Display both results **on the page** using the IDs `tempC` and `area`.
+
+Example:
+```javascript
+function calculate() {
+  // code here
+}
+```
 
 ---
 
 ## 💡 Example Output
 
-```text
-Temperature in Celsius: 100
-Area of the circle: 78.53981633974483
+**Inputs:**  
+- Fahrenheit: 212  
+- Radius: 5  
+
+**Displayed on screen:**  
+```
+Temperature in Celsius: 100.00
+Area of the circle: 78.54
 ```
 
 ---
@@ -77,22 +96,23 @@ Area of the circle: 78.53981633974483
 ## 🧪 Autograding
 
 This assignment includes an autograder configured in `.github/classroom.yml` that:
-- Checks if you used the correct element IDs (`temp` and `radius`).
-- Verifies that your script logs the correct Celsius and area values.
+- Checks if you used the correct element IDs (`temp`, `radius`, `tempC`, and `area`).
+- Verifies that your script displays the correct Celsius and area values **on the page**.
 - Runs tests using **Jest** and **jsdom**.
 
 Make sure your `script.js`:
-- Uses `console.log()` for output.
-- Does not rename the input IDs.
-- Defines your logic inside functions where possible.
+- Uses `.textContent` to display results (not `alert()` or `console.log()`).
+- Defines a function named `calculate()` that performs all logic.
+- Does not rename required element IDs.
 
 ---
 
 ## ✅ Tips for Success
 
-- Remember that all values from text fields are **strings**. Convert them using `parseFloat()` before doing math.
-- Double-check your variable names and function calls for typos.
-- Test your program in the browser console before pushing to GitHub.
+- Convert input values using `parseFloat()` before performing math.
+- Round results using `.toFixed(2)` for cleaner output.
+- Double-check your HTML element IDs and function names.
+- Test your program in the browser before pushing to GitHub.
 
 ---
 
@@ -107,55 +127,16 @@ Make sure your `script.js`:
 
 ---
 
-## 🧾 Example Starter Code
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Temperature and Circle Area</title>
-    <script src="script.js" defer></script>
-  </head>
-  <body>
-    <h1>Unit 8: Variables and Methods</h1>
-
-    <label>Enter temperature (°F):</label>
-    <input id="temp" type="text"><br><br>
-
-    <label>Enter radius of circle:</label>
-    <input id="radius" type="text"><br><br>
-
-    <button onclick="calculate()">Calculate</button>
-  </body>
-</html>
-```
-
-```javascript
-// script.js
-function calculate() {
-  let tempF = parseFloat(document.getElementById("temp").value);
-  let radius = parseFloat(document.getElementById("radius").value);
-
-  let celsius = (tempF - 32) * 5 / 9;
-  let area = Math.PI * Math.pow(radius, 2);
-
-  console.log("Temperature in Celsius:", celsius);
-  console.log("Area of the circle:", area);
-}
-```
-
----
-
 ## 🧭 Reflection
 
 After completing the project, answer the following in a brief reflection:
 1. What did you learn about using variables in JavaScript?
 2. How do functions help make your code more organized and reusable?
-3. What debugging steps did you take to ensure your output was correct?
+3. What steps did you take to debug and verify your output?
 
 ---
 
 **CS++**
 **Author:** Kevin Hare  
-**Course:** Intro to Programming using JavaScript  
+**Course:** Intro to Programming  
 **Unit:** 8 – Variables and Methods
