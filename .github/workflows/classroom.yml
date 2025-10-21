@@ -1,0 +1,84 @@
+# .github/classroom.yml
+# GitHub Classroom Autograding Configuration
+
+name: "Temperature and Circle Area Assignment"
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout student repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          npm install jsdom jest --save-dev
+
+      - name: Create test file
+        run: |
+          mkdir -p __tests__
+          cat > __tests__/script.test.js <<'EOF'
+          const fs = require("fs");
+          const { JSDOM } = require("jsdom");
+
+          describe("Temperature and Circle Area Conversion", () => {
+            let dom, document, window, consoleOutput;
+
+            beforeAll(() => {
+              const html = `
+                <!DOCTYPE html>
+                <html>
+                  <body>
+                    <input id="temp" value="212">
+                    <input id="radius" value="5">
+                    <script src="../script.js"></script>
+                  </body>
+                </html>`;
+              dom = new JSDOM(html, { runScripts: "dangerously", resources: "usable" });
+              document = dom.window.document;
+              window = dom.window;
+              consoleOutput = [];
+              window.console.log = (msg) => consoleOutput.push(msg);
+            });
+
+            test("should convert Fahrenheit to Celsius correctly", () => {
+              const tempInput = document.getElementById("temp");
+              expect(tempInput).not.toBeNull();
+              tempInput.value = "212"; // boiling point of water
+              
+              // Evaluate script.js
+              const scriptContent = fs.readFileSync("script.js", "utf-8");
+              eval(scriptContent);
+
+              const hasCelsiusLog = consoleOutput.some((msg) =>
+                msg.toString().includes("100")
+              );
+              expect(hasCelsiusLog).toBe(true);
+            });
+
+            test("should calculate area of a circle correctly", () => {
+              const radiusInput = document.getElementById("radius");
+              expect(radiusInput).not.toBeNull();
+              radiusInput.value = "5";
+
+              const scriptContent = fs.readFileSync("script.js", "utf-8");
+              eval(scriptContent);
+
+              const expectedArea = Math.PI * Math.pow(5, 2);
+              const hasAreaLog = consoleOutput.some((msg) =>
+                Math.abs(parseFloat(msg) - expectedArea) < 0.01
+              );
+              expect(hasAreaLog).toBe(true);
+            });
+          });
+          EOF
+
+      - name: Run Jest tests
+        run: npx jest --runInBand --verbose
