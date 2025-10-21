@@ -1,4 +1,4 @@
-# Unit 8 – Temperature and Circle Area Conversion Project  
+# Unit 8 – Temperature and Circle Area Conversion   
 ### Topics: 8.1 – Variables | 8.2 – Methods
 
 ---
@@ -155,6 +155,7 @@ After completing the project, answer the following in a brief reflection:
 
 ---
 
+**CS++**
 **Author:** Kevin Hare  
-**Course:** Intro to Programming  
+**Course:** Intro to Programming using JavaScript  
 **Unit:** 8 – Variables and Methods
