@@ -1,86 +1,79 @@
-name: Unit 8 – Alerts + Prompts Autograding
+name: Unit 8 – Alerts + Prompts
+autograding:
+  tests:
+    - name: convertTemp() exact prompt + alert with 212°F -> 100.00°C
+      setup: echo "No setup needed"
+      run: >
+        node -e "
+          // --- stub prompt/alert ---
+          global.__prompts = [];
+          global.prompt = (msg) => { global.__prompts.push(String(msg)); return '212'; };
+          global.__alerts = [];
+          global.alert  = (msg) => { global.__alerts.push(String(msg)); };
 
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
+          // --- load student code into GLOBAL scope (no exports required) ---
+          const fs = require('fs');
+          const vm = require('vm');
+          global.window = global;
+          const code = fs.readFileSync('script.js', 'utf8');
+          vm.runInThisContext(code, { filename: 'script.js' });
 
-permissions:
-  contents: read
-  checks: write
-  actions: read
+          // --- call & assert ---
+          if (typeof convertTemp !== 'function') {
+            console.error('convertTemp() not found on global scope');
+            process.exit(1);
+          }
+          convertTemp();
 
-jobs:
-  autograde:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+          const expectedPrompt = 'Enter temperature in Fahrenheit';
+          const expectedAlert  = 'Temperature in Celsius: 100.00';
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+          if (!global.__prompts.includes(expectedPrompt)) {
+            console.error('Expected prompt:', expectedPrompt, 'got:', global.__prompts);
+            process.exit(1);
+          }
+          if (!global.__alerts.includes(expectedAlert)) {
+            console.error('Expected alert:', expectedAlert, 'got:', global.__alerts);
+            process.exit(1);
+          }
+        "
+      timeout: 20
+      points: 50
 
-      - name: Install dependencies
-        run: npm install || true
+    - name: circleArea() exact prompt + alert with r=5 -> 78.54
+      run: >
+        node -e "
+          // --- stub prompt/alert ---
+          global.__prompts = [];
+          global.prompt = (msg) => { global.__prompts.push(String(msg)); return '5'; };
+          global.__alerts = [];
+          global.alert  = (msg) => { global.__alerts.push(String(msg)); };
 
-      # Test 1: convertTemp()
-      - name: Test convertTemp() – Fahrenheit 212 -> Celsius 100.00
-        run: |
-          node -e "
-            global.__prompts=[];
-            global.prompt=(msg)=>{ global.__prompts.push(String(msg)); return '212'; };
-            global.__alerts=[];
-            global.alert=(msg)=>{ global.__alerts.push(String(msg)); };
+          // --- load student code into GLOBAL scope (no exports required) ---
+          const fs = require('fs');
+          const vm = require('vm');
+          global.window = global;
+          const code = fs.readFileSync('script.js', 'utf8');
+          vm.runInThisContext(code, { filename: 'script.js' });
 
-            require('./script.js');
-            if (typeof convertTemp !== 'function') {
-              console.error('❌ convertTemp() not found');
-              process.exit(1);
-            }
-            convertTemp();
+          // --- call & assert ---
+          if (typeof circleArea !== 'function') {
+            console.error('circleArea() not found on global scope');
+            process.exit(1);
+          }
+          circleArea();
 
-            const expectedPrompt='Enter temperature in Fahrenheit';
-            const expectedAlert='Temperature in Celsius: 100.00';
+          const expectedPrompt = 'Enter circle radius';
+          const expectedAlert  = 'Area of the circle: 78.54';
 
-            if (!global.__prompts.includes(expectedPrompt)) {
-              console.error('❌ Expected prompt:', expectedPrompt, 'got:', global.__prompts);
-              process.exit(1);
-            }
-            if (!global.__alerts.includes(expectedAlert)) {
-              console.error('❌ Expected alert:', expectedAlert, 'got:', global.__alerts);
-              process.exit(1);
-            }
-            console.log('✅ convertTemp() passed');
-          "
-
-      # Test 2: circleArea()
-      - name: Test circleArea() – radius 5 -> 78.54
-        run: |
-          node -e "
-            global.__prompts=[];
-            global.prompt=(msg)=>{ global.__prompts.push(String(msg)); return '5'; };
-            global.__alerts=[];
-            global.alert=(msg)=>{ global.__alerts.push(String(msg)); };
-
-            require('./script.js');
-            if (typeof circleArea !== 'function') {
-              console.error('❌ circleArea() not found');
-              process.exit(1);
-            }
-            circleArea();
-
-            const expectedPrompt='Enter circle radius';
-            const expectedAlert='Area of the circle: 78.54';
-
-            if (!global.__prompts.includes(expectedPrompt)) {
-              console.error('❌ Expected prompt:', expectedPrompt, 'got:', global.__prompts);
-              process.exit(1);
-            }
-            if (!global.__alerts.includes(expectedAlert)) {
-              console.error('❌ Expected alert:', expectedAlert, 'got:', global.__alerts);
-              process.exit(1);
-            }
-            console.log('✅ circleArea() passed');
-          "
+          if (!global.__prompts.includes(expectedPrompt)) {
+            console.error('Expected prompt:', expectedPrompt, 'got:', global.__prompts);
+            process.exit(1);
+          }
+          if (!global.__alerts.includes(expectedAlert)) {
+            console.error('Expected alert:', expectedAlert, 'got:', global.__alerts);
+            process.exit(1);
+          }
+        "
+      timeout: 20
+      points: 50
