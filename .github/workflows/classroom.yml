@@ -1,246 +1,67 @@
-name: "Classroom Autograder – Unit 8: Variables & Methods"
+name: Unit 8 – Alerts + Prompts
+autograding:
+  tests:
+    - name: convertTemp() exact prompt + alert with 212°F -> 100.00°C
+      setup: echo "No setup needed"
+      run: >
+        node -e "
+          // stub prompt/alert
+          global.__prompts=[];
+          global.prompt=(msg)=>{ global.__prompts.push(String(msg)); return '212'; };
+          global.__alerts=[];
+          global.alert=(msg)=>{ global.__alerts.push(String(msg)); };
 
-on:
-  push:
-  pull_request:
+          // require student code and call function
+          const mod = require('./script.js');
+          const f = mod && mod.convertTemp;
+          if (typeof f !== 'function') { console.error('convertTemp() not found'); process.exit(1); }
+          f();
 
-jobs:
-  autograde:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install test dependencies
-        run: |
-          npm install --save-dev jest@29 jsdom@21 jest-environment-jsdom@29
-
-      - name: Create Jest setup
-        run: |
-          cat > jest.setup.cjs <<'EOF'
-          const { TextEncoder, TextDecoder } = require('util');
-          if (typeof global.TextEncoder === 'undefined') global.TextEncoder = TextEncoder;
-          if (typeof global.TextDecoder === 'undefined') global.TextDecoder = TextDecoder;
-          EOF
-
-      - name: Create Jest config
-        run: |
-          cat > jest.config.cjs <<'EOF'
-          module.exports = {
-            testEnvironment: 'jsdom',
-            setupFiles: ['<rootDir>/jest.setup.cjs'],
-            testMatch: [
-              '**/__tests__/**/*.test.cjs',
-              '**/?(*.)+(spec|test).[jt]s?(x)'
-            ]
-          };
-          EOF
-
-      - name: Create Jest test (load index.html from disk; call calculate() in page realm)
-        run: |
-          mkdir -p __tests__
-          cat > __tests__/script.test.cjs <<'EOF'
-          const fs = require('fs');
-          const path = require('path');
-          const { JSDOM, VirtualConsole } = require('jsdom');
-
-          // Locate index.html in common places
-          function findIndexPath() {
-            const cands = [
-              'index.html',
-              path.join('public', 'index.html'),
-              path.join('src', 'index.html'),
-              path.join('docs', 'index.html')
-            ];
-            for (const p of cands) if (fs.existsSync(p)) return p;
-            return null;
+          // verify prompt text
+          const expectedPrompt = 'Enter temperature in Fahrenheit';
+          if (!global.__prompts.includes(expectedPrompt)) {
+            console.error('Expected prompt:', expectedPrompt, 'but saw:', global.__prompts);
+            process.exit(1);
           }
 
-          // Wait for window 'load' then a short settle
-          async function waitForLoad(window, ms = 50) {
-            await new Promise(res => window.addEventListener('load', res, { once: true }));
-            await new Promise(res => window.setTimeout(res, ms));
+          // verify alert text
+          const expectedAlert = 'Temperature in Celsius: 100.00';
+          if (!global.__alerts.includes(expectedAlert)) {
+            console.error('Expected alert:', expectedAlert, 'but saw:', global.__alerts);
+            process.exit(1);
+          }
+        "
+      timeout: 20
+      points: 50
+
+    - name: circleArea() exact prompt + alert with r=5 -> 78.54
+      run: >
+        node -e "
+          // stub prompt/alert
+          global.__prompts=[];
+          global.prompt=(msg)=>{ global.__prompts.push(String(msg)); return '5'; };
+          global.__alerts=[];
+          global.alert=(msg)=>{ global.__alerts.push(String(msg)); };
+
+          // require student code and call function
+          const mod = require('./script.js');
+          const f = mod && mod.circleArea;
+          if (typeof f !== 'function') { console.error('circleArea() not found'); process.exit(1); }
+          f();
+
+          // verify prompt text
+          const expectedPrompt = 'Enter circle radius';
+          if (!global.__prompts.includes(expectedPrompt)) {
+            console.error('Expected prompt:', expectedPrompt, 'but saw:', global.__prompts);
+            process.exit(1);
           }
 
-          // Extract first numeric token and cast with Number()
-          function readNumberFromElement(document, id) {
-            const el = document.getElementById(id);
-            if (!el) return NaN;
-            const raw = ((el.textContent ?? el.innerText ?? '').trim())
-                      || (typeof el.value === 'string' ? el.value.trim() : '');
-            const m = raw.match(/-?\d+(?:\.\d+)?/);
-            return m ? Number(m[0]) : NaN;
+          // verify alert text
+          const expectedAlert = 'Area of the circle: 78.54';
+          if (!global.__alerts.includes(expectedAlert)) {
+            console.error('Expected alert:', expectedAlert, 'but saw:', global.__alerts);
+            process.exit(1);
           }
-
-          // Set inputs and trigger calculations without button clicks
-          function setInputsAndTrigger(window, document, tempVal, radiusVal) {
-            const t = document.getElementById('temp');
-            const r = document.getElementById('radius');
-            if (!t || !r) return;
-
-            t.value = String(tempVal);
-            r.value = String(radiusVal);
-
-            // Fire input/change for reactive solutions
-            t.dispatchEvent(new window.Event('input', { bubbles: true }));
-            t.dispatchEvent(new window.Event('change', { bubbles: true }));
-            r.dispatchEvent(new window.Event('input', { bubbles: true }));
-            r.dispatchEvent(new window.Event('change', { bubbles: true }));
-
-            // Call calculate() inside the page realm whether or not it's on window
-            try { window.eval('if (typeof calculate==="function"){ calculate(); }'); } catch (_) {}
-            if (typeof window.calculate === 'function') window.calculate();
-          }
-
-          describe('Temperature and Circle Area Conversion (DOM Output)', () => {
-            let dom, window, document, indexPath;
-
-            beforeAll(() => {
-              indexPath = findIndexPath();
-              if (!indexPath) {
-                throw new Error('index.html not found. Place it at ./index.html or public/src/docs.');
-              }
-            });
-
-            beforeEach(async () => {
-              const baseDir = path.dirname(path.resolve(indexPath));
-              const baseUrl = 'file://' + baseDir.replace(/\\+/g, '/') + '/';
-
-              const vconsole = new VirtualConsole();
-              vconsole.on('error', () => { /* prevent noisy stacktraces, tests assert values instead */ });
-
-              dom = await JSDOM.fromFile(indexPath, {
-                url: baseUrl,                    // IMPORTANT: file:// base so <script src> reads from disk
-                runScripts: 'dangerously',
-                resources: 'usable',
-                pretendToBeVisual: true,
-                virtualConsole: vconsole
-              });
-
-              window = dom.window;
-              document = window.document;
-
-              await waitForLoad(window); // let scripts execute
-            });
-
-            test('has required output elements tempC and area', () => {
-              expect(document.getElementById('tempC')).not.toBeNull();
-              expect(document.getElementById('area')).not.toBeNull();
-            });
-
-            test('displays correct Celsius for 212°F', async () => {
-              expect(document.getElementById('temp')).not.toBeNull();
-              expect(document.getElementById('radius')).not.toBeNull();
-
-              setInputsAndTrigger(window, document, 212, 5);
-              await new Promise(res => window.setTimeout(res, 25));
-
-              let c = readNumberFromElement(document, 'tempC');
-              c = Number(c);
-              expect(Number.isNaN(c)).toBe(false);
-              expect(Math.abs(c - 100)).toBeLessThan(0.5);
-            });
-
-            test('displays correct area for radius=5', async () => {
-              expect(document.getElementById('temp')).not.toBeNull();
-              expect(document.getElementById('radius')).not.toBeNull();
-
-              setInputsAndTrigger(window, document, 212, 5);
-              await new Promise(res => window.setTimeout(res, 25));
-
-              let a = readNumberFromElement(document, 'area');
-              a = Number(a);
-              const expected = Math.PI * 25; // r^2 = 25
-              expect(Number.isNaN(a)).toBe(false);
-              expect(Math.abs(a - expected)).toBeLessThan(0.5);
-            });
-          });
-          EOF
-
-      # --- The two steps below ensure the job turns green when tests pass ---
-
-      # Always run Jest, produce JSON, and don't fail this step directly
-      - name: Run tests and create JSON results
-        id: jest
-        continue-on-error: true
-        run: |
-          npx jest --runInBand --verbose --json --outputFile=jest-results.json || true
-
-      - name: Upload raw results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jest-results
-          path: jest-results.json
-
-      - name: Summarize results for students (no solutions shown)
-        if: always()
-        run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const r = JSON.parse(fs.readFileSync('jest-results.json','utf8'));
-
-          const total  = r.numTotalTests ?? 0;
-          const passed = r.numPassedTests ?? 0;
-          const failed = r.numFailedTests ?? 0;
-
-          // Flatten all assertion results from all test files
-          const all = (r.testResults || []).flatMap(tr => tr.assertionResults || []);
-
-          // Helper: does a given short label appear as a passed test?
-          function isPassed(label) {
-            return all.some(ar => {
-              const t = ar.title || '';
-              const f = ar.fullName || '';
-              const match =
-                t === label ||
-                f.endsWith(label) ||
-                f.includes(' ' + label); // tolerate a suite prefix plus space
-              return match && ar.status === 'passed';
-            });
-          }
-
-          const checks = [
-            ["has required output elements tempC and area", "Your page must include elements with ids #tempC and #area."],
-            ["displays correct Celsius for 212°F", "For an input of 212°F, #tempC should show a correct Celsius value (rounded is fine)."],
-            ["displays correct area for radius=5", "For a radius of 5, #area should show a correct area value (rounded is fine)."]
-          ];
-
-          const mark = (ok, label) => `${ok ? '✅' : '❌'} ${label}`;
-
-          let out = [];
-          out.push(`# Unit 8 Autograder Summary`);
-          out.push(`**Passed:** ${passed}/${total}  ·  **Failed:** ${failed}\n`);
-          out.push(`## What you got right / need to fix\n`);
-          for (const [name, hint] of checks) {
-            const ok = isPassed(name);
-            out.push(mark(ok, name));
-            if (!ok) out.push(`   - Hint: ${hint}`);
-          }
-          out.push(`\n### Reminders`);
-          out.push(`- Read values from the inputs with ids: temp, radius.`);
-          out.push(`- Show your results on the page in elements with ids: tempC, area.`);
-          out.push(`- Ensure your code runs when the page loads or when your function is called.`);
-
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out.join('\n'));
-          NODE
-
-
-      # Set the final job status from the JSON (green if numFailedTests == 0)
-      - name: Set job status from test results
-        if: always()
-        run: |
-          failed=$(node -e "console.log(JSON.parse(require('fs').readFileSync('jest-results.json','utf8')).numFailedTests||0)")
-          if [ "$failed" -gt 0 ]; then
-            echo "Some tests failed ($failed). Marking job as failed."
-            exit 1
-          else
-            echo "All tests passed. Marking job as success."
-            exit 0
-          fi
+        "
+      timeout: 20
+      points: 50
