@@ -22,76 +22,31 @@ jobs:
         with:
           node-version: 20
 
-      - name: Run convertTemp() test
-        id: temp
+      # Create the autograder config ON THE FLY (not committed to the repo)
+      - name: Generate Classroom autograding config
         run: |
-          node -e "
-            global.__prompts = [];
-            global.prompt = (msg) => { global.__prompts.push(String(msg)); return '212'; };
-            global.__alerts = [];
-            global.alert  = (msg) => { global.__alerts.push(String(msg)); };
+          mkdir -p .github/classroom
+          cat > .github/classroom/autograding.json <<'JSON'
+          {
+            "tests": [
+              {
+                "name": "convertTemp() – 212°F → \"Temperature in Celsius: 100.00\" (prompt text exact)",
+                "setup": "echo \"No setup\"",
+                "run": "node -e \"global.__prompts=[];global.prompt=(m)=>{global.__prompts.push(String(m));return '212'};global.__alerts=[];global.alert=(m)=>{global.__alerts.push(String(m))};const fs=require('fs');const vm=require('vm');global.window=global;const code=fs.readFileSync('script.js','utf8');vm.runInThisContext(code,{filename:'script.js'});if(typeof convertTemp!=='function'){console.error('convertTemp() not found');process.exit(1)};convertTemp();if(!global.__prompts.includes('Enter temperature in Fahrenheit')){console.error('Expected prompt: Enter temperature in Fahrenheit; got: '+JSON.stringify(global.__prompts));process.exit(1)};if(!global.__alerts.includes('Temperature in Celsius: 100.00')){console.error('Expected alert: Temperature in Celsius: 100.00; got: '+JSON.stringify(global.__alerts));process.exit(1)};\"",
+                "timeout": 20,
+                "points": 50
+              },
+              {
+                "name": "circleArea() – r=5 → \"Area of the circle: 78.54\" (prompt text exact)",
+                "setup": "",
+                "run": "node -e \"global.__prompts=[];global.prompt=(m)=>{global.__prompts.push(String(m));return '5'};global.__alerts=[];global.alert=(m)=>{global.__alerts.push(String(m))};const fs=require('fs');const vm=require('vm');global.window=global;const code=fs.readFileSync('script.js','utf8');vm.runInThisContext(code,{filename:'script.js'});if(typeof circleArea!=='function'){console.error('circleArea() not found');process.exit(1)};circleArea();if(!global.__prompts.includes('Enter circle radius')){console.error('Expected prompt: Enter circle radius; got: '+JSON.stringify(global.__prompts));process.exit(1)};if(!global.__alerts.includes('Area of the circle: 78.54')){console.error('Expected alert: Area of the circle: 78.54; got: '+JSON.stringify(global.__alerts));process.exit(1)};\"",
+                "timeout": 20,
+                "points": 50
+              }
+            ]
+          }
+          JSON
 
-            const fs = require('fs');
-            const vm = require('vm');
-            global.window = global;
-            const code = fs.readFileSync('script.js', 'utf8');
-            vm.runInThisContext(code, { filename: 'script.js' });
-
-            if (typeof convertTemp !== 'function') {
-              console.error('❌ convertTemp() not found');
-              process.exit(1);
-            }
-            convertTemp();
-
-            const expectedPrompt = 'Enter temperature in Fahrenheit';
-            const expectedAlert  = 'Temperature in Celsius: 100.00';
-
-            if (!global.__prompts.includes(expectedPrompt)) {
-              console.error('❌ Expected prompt:', expectedPrompt, 'got:', global.__prompts);
-              process.exit(1);
-            }
-            if (!global.__alerts.includes(expectedAlert)) {
-              console.error('❌ Expected alert:', expectedAlert, 'got:', global.__alerts);
-              process.exit(1);
-            }
-            console.log('✅ convertTemp() passed');
-          "
-
-      - name: Run circleArea() test
-        id: area
-        run: |
-          node -e "
-            global.__prompts = [];
-            global.prompt = (msg) => { global.__prompts.push(String(msg)); return '5'; };
-            global.__alerts = [];
-            global.alert  = (msg) => { global.__alerts.push(String(msg)); };
-
-            const fs = require('fs');
-            const vm = require('vm');
-            global.window = global;
-            const code = fs.readFileSync('script.js', 'utf8');
-            vm.runInThisContext(code, { filename: 'script.js' });
-
-            if (typeof circleArea !== 'function') {
-              console.error('❌ circleArea() not found');
-              process.exit(1);
-            }
-            circleArea();
-
-            const expectedPrompt = 'Enter circle radius';
-            const expectedAlert  = 'Area of the circle: 78.54';
-
-            if (!global.__prompts.includes(expectedPrompt)) {
-              console.error('❌ Expected prompt:', expectedPrompt, 'got:', global.__prompts);
-              process.exit(1);
-            }
-            if (!global.__alerts.includes(expectedAlert)) {
-              console.error('❌ Expected alert:', expectedAlert, 'got:', global.__alerts);
-              process.exit(1);
-            }
-            console.log('✅ circleArea() passed');
-          "
-
-      - name: Report results to GitHub Classroom
-        if: always()
+      # Run the official GitHub Classroom autograder (reads the JSON we just generated)
+      - name: Run GitHub Classroom Autograding
         uses: education/autograding@v1
