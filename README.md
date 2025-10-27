@@ -1,142 +1,155 @@
-# Unit 8 – Temperature and Circle Area Conversion Project  
-### Topics: 8.1 – Variables | 8.2 – Methods
+# Unit 8 – Temperature & Circle Area 
 
----
+## 🧠 JavaScript Crash Course
 
-## 🧠 Overview
+Before starting this project, review a few key JavaScript basics.
 
-In this project, you will apply your understanding of **variables** and **methods (functions)** in JavaScript to create a small web program that performs two tasks:
+### `var` vs `let`
+| Keyword | Scope | Redeclaration | Typical Use |
+|----------|--------|---------------|--------------|
+| `var` | Function-scoped | Can be redeclared | Legacy code (older JavaScript) |
+| `let` | Block-scoped | Cannot be redeclared in same block | Modern variable declaration |
 
-1. Ask the user for a **temperature in Fahrenheit** and convert it to **Celsius**.  
-2. Ask the user for the **radius of a circle** and display its **area**.  
-
-You will use **text input fields** in an HTML page to collect values and use the DOM (`document.getElementById`) to display results **on the screen**.
-
----
-
-## 📘 Learning Objectives
-
-By the end of this assignment, you should be able to:
-- Declare and initialize **variables** to store user input.
-- Use **document.getElementById()** to access and update elements in the DOM.
-- Apply **arithmetic operators** to perform calculations.
-- Define and call **functions (methods)** to organize and reuse code.
-- Display results on a webpage using `.textContent`.
-
----
-
-## 🧩 Background: Variables and Methods in JavaScript
-
-### Variables
-Variables are containers used to store data values. In JavaScript, you can declare variables using `let`, `const`, or `var`.  
-- Use `let` when the value can change.  
-- Use `const` for values that should not change.  
-
-Example:
+**Example:**
 ```javascript
-let tempF = 212;
-const PI = 3.14159;
+let x = 10;
+x = x + 5;   // ✅ works
+let x = 7;   // ❌ error: already declared
 ```
 
-### Methods (Functions)
-Functions (also called methods when defined inside objects) are reusable blocks of code designed to perform a specific task.  
-They are defined using the `function` keyword and called by name.
+**Quick Tip:** Always use `let` for variables that change, and `const` for values that don’t.
 
-Example:
+---
+
+### Simple Math in JavaScript
+You can use math operators the same way you would on a calculator:
+
+| Operator | Meaning | Example | Result |
+|-----------|----------|----------|---------|
+| `+` | Addition | `5 + 3` | `8` |
+| `-` | Subtraction | `9 - 2` | `7` |
+| `*` | Multiplication | `4 * 2` | `8` |
+| `/` | Division | `9 / 3` | `3` |
+| `**` | Exponent | `2 ** 3` | `8` |
+| `%` | Remainder | `10 % 3` | `1` |
+
+---
+
+## 💡 Project Overview
+You’ll build a **simple JavaScript page** that uses **`prompt()`** and **`alert()`** for user input and output.  
+Students will complete two shell functions:
+
+1. `convertTemp()` — Converts Fahrenheit to Celsius  
+2. `circleArea()` — Calculates the area of a circle  
+
+Each function is triggered by a button on the web page.
+
+---
+
+## 🧩 What to Build
+You have **two buttons** in `index.html` that call functions in `script.js`:
+
+### Buttons
+- “Convert Temperature” → `convertTemp()`
+- “Calculate Circle Area” → `circleArea()`
+
+### Functions to Implement
 ```javascript
-function toCelsius(fahrenheit) {
-  return (fahrenheit - 32) * 5 / 9;
+function convertTemp() {
+  // Prompt: "Enter temperature in Fahrenheit"
+  // Convert to Celsius: (fahrenheit - 32) * 5 / 9
+  // Alert: "Temperature in Celsius: <value>" (2 decimals)
+}
+
+function circleArea() {
+  // Prompt: "Enter circle radius"
+  // Compute area: Math.PI * radius * radius
+  // Alert: "Area of the circle: <value>" (2 decimals)
 }
 ```
 
----
+### ⚙️ Required Prompt & Alert Text (exact!)
+| Function | Prompt Text | Alert Text |
+|-----------|--------------|-------------|
+| `convertTemp()` | `Enter temperature in Fahrenheit` | `Temperature in Celsius: <value>` |
+| `circleArea()` | `Enter circle radius` | `Area of the circle: <value>` |
 
-## 🧱 Project Requirements
-
-### HTML Requirements
-Your HTML page must contain:
-
-```html
-<input id="temp" type="text">        <!-- Fahrenheit input -->
-<input id="radius" type="text">      <!-- Circle radius input -->
-<div id="tempC"></div>               <!-- Celsius output -->
-<div id="area"></div>                <!-- Area output -->
-<button onclick="calculate()">Calculate</button>
-```
-
-### JavaScript Requirements
-Your JavaScript file (`script.js`) must:
-1. Retrieve both input values using `document.getElementById()`.
-2. Convert Fahrenheit to Celsius and calculate the area of a circle.
-3. Display both results **on the page** using the IDs `tempC` and `area`.
-
-Example:
-```javascript
-function calculate() {
-  // code here
-}
-```
+> The autograder checks for **exact string matches**.  
+> Even capitalization matters!
 
 ---
 
-## 💡 Example Output
-
-**Inputs:**  
-- Fahrenheit: 212  
-- Radius: 5  
-
-**Displayed on screen:**  
-```
-Temperature in Celsius: 100.00
-Area of the circle: 78.54
-```
-
----
-
-## 🧪 Autograding
-
-This assignment includes an autograder configured in `.github/classroom.yml` that:
-- Checks if you used the correct element IDs (`temp`, `radius`, `tempC`, and `area`).
-- Verifies that your script displays the correct Celsius and area values **on the page**.
-- Runs tests using **Jest** and **jsdom**.
-
-Make sure your `script.js`:
-- Uses `.textContent` to display results (not `alert()` or `console.log()`).
-- Defines a function named `calculate()` that performs all logic.
-- Does not rename required element IDs.
-
----
-
-## ✅ Tips for Success
-
-- Convert input values using `parseFloat()` before performing math.
-- Round results using `.toFixed(2)` for cleaner output.
-- Double-check your HTML element IDs and function names.
-- Test your program in the browser before pushing to GitHub.
-
----
-
-## 📂 File Structure
-
+## 🧱 File Structure
 ```
 ├── index.html
 ├── script.js
 └── .github/
-    └── classroom.yml
+    └── workflows/
+        └── classroom.yml
 ```
 
 ---
 
-## 🧭 Reflection
+## 🧪 Autograding (GitHub Classroom)
 
-After completing the project, answer the following in a brief reflection:
-1. What did you learn about using variables in JavaScript?
-2. How do functions help make your code more organized and reusable?
-3. What steps did you take to debug and verify your output?
+The tests run automatically via **GitHub Actions** each time you push your code.
+
+- ✅ **Test 1 (50 pts):**  
+  `convertTemp()`  
+  - Input: `212`  
+  - Expected output: `Temperature in Celsius: 100.00`
+  - Checks exact prompt text
+
+- ✅ **Test 2 (50 pts):**  
+  `circleArea()`  
+  - Input: `5`  
+  - Expected output: `Area of the circle: 78.54`
+  - Checks exact prompt text
+
+### ⚙️ Behind the Scenes
+The workflow file in `.github/workflows/classroom.yml`:
+- Creates the test configuration dynamically
+- Runs Node to simulate `prompt()` and `alert()` in your script
+- Reports your **score directly to GitHub Classroom**
 
 ---
 
-**CS++**
-**Author:** Kevin Hare  
-**Course:** Intro to Programming  
-**Unit:** 8 – Variables and Methods
+## 🚀 How to Run Locally
+
+1. Open `index.html` in your browser.  
+2. Click **“Convert Temperature”** or **“Calculate Circle Area”**.  
+3. Follow the `prompt()`s that appear and verify the results in `alert()` pop-ups.
+
+---
+
+## ✅ Tips for Success
+- Use `parseFloat()` to convert text input to numbers.  
+- Use `.toFixed(2)` to format decimals properly.  
+- Always use the exact prompt/alert wording shown above.  
+- Don’t use `console.log()` — this project only uses **`prompt()`** and **`alert()`**.
+
+---
+
+## 🎯 Example Output
+
+### Example 1
+```
+Prompt: Enter temperature in Fahrenheit
+User enters: 212
+Alert: Temperature in Celsius: 100.00
+```
+
+### Example 2
+```
+Prompt: Enter circle radius
+User enters: 5
+Alert: Area of the circle: 78.54
+```
+
+---
+
+### 🏁 Goal
+When you push your completed `script.js`, GitHub Classroom will automatically:
+1. Run both tests  
+2. Award up to **100 points**  
+3. Sync your results back to your assignment page
