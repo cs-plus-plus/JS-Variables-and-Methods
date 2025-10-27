@@ -5,20 +5,17 @@ autograding:
       setup: echo "No setup needed"
       run: >
         node -e "
-          // --- stub prompt/alert ---
           global.__prompts = [];
           global.prompt = (msg) => { global.__prompts.push(String(msg)); return '212'; };
           global.__alerts = [];
           global.alert  = (msg) => { global.__alerts.push(String(msg)); };
 
-          // --- load student code into GLOBAL scope (no exports required) ---
           const fs = require('fs');
           const vm = require('vm');
           global.window = global;
           const code = fs.readFileSync('script.js', 'utf8');
           vm.runInThisContext(code, { filename: 'script.js' });
 
-          // --- call & assert ---
           if (typeof convertTemp !== 'function') {
             console.error('convertTemp() not found on global scope');
             process.exit(1);
@@ -43,20 +40,17 @@ autograding:
     - name: circleArea() exact prompt + alert with r=5 -> 78.54
       run: >
         node -e "
-          // --- stub prompt/alert ---
           global.__prompts = [];
           global.prompt = (msg) => { global.__prompts.push(String(msg)); return '5'; };
           global.__alerts = [];
           global.alert  = (msg) => { global.__alerts.push(String(msg)); };
 
-          // --- load student code into GLOBAL scope (no exports required) ---
           const fs = require('fs');
           const vm = require('vm');
           global.window = global;
           const code = fs.readFileSync('script.js', 'utf8');
           vm.runInThisContext(code, { filename: 'script.js' });
 
-          // --- call & assert ---
           if (typeof circleArea !== 'function') {
             console.error('circleArea() not found on global scope');
             process.exit(1);
